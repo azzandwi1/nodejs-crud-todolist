@@ -1,0 +1,74 @@
+extends ../layout/base
+block content
+    section.content-header
+        h1
+            center
+                p#date
+    section.content
+        .box.box-primary
+            .box-header.with-border
+                i.ion.ion-clipboard
+                h3.box-title
+                    |  To Do List
+                .box-tools.pull-right
+                    button(type='button', data-widget='collapse', data-toggle='tooltip').btn.btn-box-tool
+                         i.fa.fa-minus
+            .box-body
+                form(role='form', method='post' action='/todos/add')
+                    .row
+                        - if(messages.msg_error)
+                            .alert.alert-danger.alert-dismissable
+                                button.close(type='button', data-dismiss='alert', aria-hidden='true')
+                                    | x
+                                h4
+                                    i.icon.fa.fa-ban
+                                    | Alert!
+                                | !{messages.msg_error}
+                    .center       
+                        .form-group
+                            .col-xs-11
+                                input(type="text", name='event', placeholder='Enter List', autofocus).form-control
+                                input(type="hidden" name="status" value="0")
+                                input(type="hidden" id='dates' name="dates" value='#{dates}')
+                            div(style='display:inline-block')
+                                button.pull-right.btn.btn-primary(type='submit')
+                                    | Add List
+                ul.todo-list
+                    if messages.msg_error
+                                | !{messages.msg_error}
+                            else
+                                for row, index in data 
+                                    li
+                                        div(style='display:inline-block')
+                                            if row.status== 1
+                                                form(id='form1' role='form'  method='post' action='/todos/edit/#{(id==undefined) ? row.id : id}') 
+                                                  
+                                                        input(type="hidden", name='_method', value='PUT')
+                                                        input(type="hidden" name="status" value="0")
+                                                        input(type="hidden" name="event" value='#{row.event}')
+                                                        input(type="hidden" name="dates" value="#{row.dates}")
+                                                        input(type="checkbox" name="status" checked='' onchange="this.form.submit()")
+                                                        |  
+                                                        span.text.blur <strike><i> #{row.event} </i></strike>
+                                                        <small class="label label-primary"> #{row.dates}</small>                                
+                                            else if row.status==0
+                                                form(id='form2' role='form' method='post' action='/todos/edit/#{(id==undefined) ? row.id : id}') 
+                                           
+                                                        input(type="hidden", name='_method', value='PUT')    
+                                                        input(type="hidden" name="event" value='#{row.event}')
+                                                        input(type="hidden" name="dates" value="#{row.dates}")                     
+                                                        input(type='checkbox' value="1" name="status" onchange="this.form.submit()")
+                                                        |  
+                                                        span.text #{row.event}
+                                                        <small class="label label-primary"> #{row.dates}</small>  
+                                        .tools
+                                            div(style='display:inline-block')
+                                                form(method='post', action='/todos/delete/#{row.id}')
+                                                    input(type="hidden", name="_method", value="DELETE")
+                                                    button.btn.btn-sm.btn-danger(type='submit')
+                                                        i.fa.fa-trash-o
+                div.box-footer.clearfix.no-border
+                    form(method='post', action='/todos/clear')
+                        input(type="hidden", name="_method", value="DELETE")
+                        button.pull-right.btn.btn-primary(type='submit')
+                            |  Clear
